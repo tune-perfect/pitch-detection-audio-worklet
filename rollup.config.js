@@ -1,17 +1,15 @@
-import path from 'path'
-import resolve from '@rollup/plugin-node-resolve'
-import babel from '@rollup/plugin-babel'
-import { DEFAULT_EXTENSIONS } from '@babel/core'
-import cleanup from 'rollup-plugin-cleanup'
-import typescript from 'rollup-plugin-typescript2'
-import { terser } from 'rollup-plugin-terser'
+import path from 'path';
+import resolve from '@rollup/plugin-node-resolve';
+import cleanup from 'rollup-plugin-cleanup';
+import typescript from 'rollup-plugin-typescript2';
+import { concatFiles } from './src/rollup-plugin-concatfiles';
 
 export default [
   {
-    input: path.join(__dirname, 'src/gainWorklet.ts'),
+    input: path.join(__dirname, 'src/pitch.worklet.ts'),
     output: [
       {
-        file: 'dist/gainWorklet.js',
+        file: 'dist/pitch.worklet.js',
         format: 'cjs',
         sourcemap: false,
         exports: 'named',
@@ -21,16 +19,22 @@ export default [
       resolve({
         browser: true,
       }),
-      typescript(),
-      babel({
-        babelHelpers: 'bundled',
-        configFile: path.resolve(__dirname, 'babel.config.json'),
-        extensions: [...DEFAULT_EXTENSIONS, '.ts', '.tsx'],
+      typescript({
+        rollupCommonJSResolveHack: false,
+        clean: true,
       }),
       cleanup({
-        extensions: [...DEFAULT_EXTENSIONS, '.ts', '.tsx'],
+        extensions: ['.ts', '.tsx'],
       }),
-      // terser(),
+      concatFiles({
+        files: {
+          'dist/pitch.worklet.js': {
+            banner: [],
+            concatFiles: ['src/text-decoder.js', 'dist/pitch.worklet.js'],
+            footer: [],
+          },
+        },
+      }),
     ],
   },
-]
+];
