@@ -12,9 +12,6 @@ export class OverwriteBuffer {
   }
 
   public add(array: Float32Array): void {
-    if (array.length > this.size) {
-      throw new RangeError('Cannot add array larger than buffer size');
-    }
     // make space in buffer if input too large
     if (array.length + this.pos > this.buffer.length) {
       const sizeNeeded = array.length - (this.size - this.pos);
@@ -27,7 +24,15 @@ export class OverwriteBuffer {
     this.pos += array.length;
   }
 
-  public get(): Float32Array {
+  public getBuffer(): Float32Array {
     return this.buffer;
+  }
+
+  public getSize(): number {
+    return this.size;
+  }
+
+  public getPos(): number {
+    return this.pos;
   }
 }

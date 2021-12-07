@@ -9,17 +9,24 @@ class PitchWorklet extends AudioWorkletProcessor {
     super();
     this.buffer = new OverwriteBuffer(sampleRate);
     this.port.onmessage = async (e) => {
-      if (e.data[0] === 'init') {
-        await init(e.data[1]);
+      const message = e.data;
+      if (message.type === 'init') {
+        const wasm = message.data;
+        await init(wasm);
         this.dywa = new DywaPitchTracker();
         this.dywa.sample_rate_hz = sampleRate;
-      } else {
+      } else if (message.type === 'pitch') {
         if (this.dywa) {
-          console.log(this.dywa.compute_pitch(this.buffer.get(), 0, 5000));
+          const sampleCount = message.data as number;
+          const pitch = this.dywa.compute_pitch(
+            this.buffer.getBuffer(),
+            this.buffer.getSize() - sampleCount,
+            sampleCount,
+          );
+          this.port.postMessage({ type: 'pitch', message: pitch });
         }
       }
     };
-    this.port.postMessage({ msg: 'Processor created on the audio thread.' });
   }
 
   process(
