@@ -1,5 +1,6 @@
 import init, { DywaPitchTracker } from 'dywapitchtrack';
 import { OverwriteBuffer } from '~/overwrite-buffer';
+import { isAboveNoiseSuppressionThreshold } from './audio-utils';
 
 class PitchWorklet extends AudioWorkletProcessor {
   buffer: OverwriteBuffer;
@@ -18,11 +19,22 @@ class PitchWorklet extends AudioWorkletProcessor {
       } else if (message.type === 'pitch') {
         if (this.dywa) {
           const sampleCount = message.data as number;
-          const pitch = this.dywa.compute_pitch(
+          const startSample = this.buffer.getSize() - sampleCount;
+
+          const isAboveThreshold = isAboveNoiseSuppressionThreshold(
             this.buffer.getBuffer(),
-            this.buffer.getSize() - sampleCount,
+            startSample,
             sampleCount,
+            2,
           );
+          let pitch = -1;
+          if (isAboveThreshold) {
+            pitch = this.dywa.compute_pitch(
+              this.buffer.getBuffer(),
+              startSample,
+              sampleCount,
+            );
+          }
           this.port.postMessage({ type: 'pitch', message: pitch });
         }
       }
