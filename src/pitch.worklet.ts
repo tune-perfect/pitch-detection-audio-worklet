@@ -35,6 +35,9 @@ class PitchWorklet extends AudioWorkletProcessor {
               sampleCount,
             );
           }
+          if (pitch <= 0) {
+            this.dywa.clear_pitch_history();
+          }
           this.port.postMessage({ type: 'pitch', message: pitch });
         }
       }
