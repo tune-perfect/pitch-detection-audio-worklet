@@ -25,7 +25,7 @@ class PitchWorklet extends AudioWorkletProcessor {
             this.buffer.getBuffer(),
             startSample,
             sampleCount,
-            2,
+            3,
           );
           let pitch = -1;
           if (isAboveThreshold) {
