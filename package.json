@@ -1,6 +1,6 @@
 {
   "name": "pitch-detection-audio-worklet",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "pitch.worklet.js",
   "scripts": {
